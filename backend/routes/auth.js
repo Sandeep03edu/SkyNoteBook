@@ -31,7 +31,9 @@ router.post(
 
       if (user) {
         // User already exist in database
-        return res.status(400).json({  success, errors: "Mail id already registered!!" });
+        return res
+          .status(400)
+          .json({ success, errors: "Mail id already registered!!" });
       }
 
       const salt = await bcrypt.genSalt(10);
@@ -53,12 +55,12 @@ router.post(
         // jwt.sign({DATA}, JWD_SECRET_KEY);
         const authtoken = jwt.sign(data, JWD_SECRET_KEY);
         success = true;
-        res.json({success, authtoken });
+        res.json({ success, authtoken });
         //   res.json(user)
       });
     } catch (err) {
       console.log(err.message);
-      res.status(500).send( success, "An error occurred!!");
+      res.status(500).send(success, "An error occurred!!");
     }
   }
 );
@@ -75,7 +77,7 @@ router.post(
     let success = false;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({success,  errors: errors.array() });
+      return res.status(400).json({ success, errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -91,7 +93,7 @@ router.post(
       const comparePassword = await bcrypt.compare(password, user.password);
       if (!comparePassword) {
         // Password doesn't match
-        return res.status(400).json({success,  errors: "Invalid credentials" });
+        return res.status(400).json({ success, errors: "Invalid credentials" });
       }
 
       // Sending data
@@ -113,25 +115,21 @@ router.post(
   }
 );
 
-
-
 // Get logged in user details using POST "api/auth/getuser", Login Required
-router.post(
-  "/getuser", fetchuser,  async (req, res) => {
-    // Checking data vaildation and sending bad req for errors
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-      let userId = req.user.id;
-      const user = await User.findById(userId).select("-password");
-      res.status(200).send({user})
-    } catch (err) {
-      console.log(err.message);
-      res.status(500).send("An error occurred!!");
-    }
+router.post("/getuser", fetchuser, async (req, res) => {
+  // Checking data vaildation and sending bad req for errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
-);
+
+  try {
+    let userId = req.user.id;
+    const user = await User.findById(userId).select("-password");
+    res.status(200).send({ user });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).send("An error occurred!!");
+  }
+});
 module.exports = router;
